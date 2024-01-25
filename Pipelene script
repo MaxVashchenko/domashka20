@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Клонуємо репозиторій з GitHub
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/MaxVashchenko/domashka20.git']]])
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    // Крок збірки Docker-compose
+                    sh 'docker-compose2.yml build' (скрипт в гіту лежить)
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                script {
+                    // Крок для виконання автоматизованих тестів
+                    sh 'your_test_command_here'
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'aws configure set aws_access_key_id <Your_AWS_Access_Key>'
+                    sh 'aws configure set aws_secret_access_key <Your_AWS_Secret_Access_Key>'
+                    sh 'aws ecs update-service --cluster <Your_ECS_Cluster_Name> --service <Your_Service_Name> --force-new-deployment'
+                }
+            }
+        }
+    }
+
+    post {
+        // Додаємо блок для відстеження змін
+        always {
+            // Виконуємо цей блок завжди, навіть якщо є помилки в попередніх етапах
+            // Це дозволить відстежувати зміни в репозиторії
+
+            // Запускаємо відстеження змін
+            script {
+                def changes = currentBuild.changeSets
+                if (changes != null && changes.size() > 0) {
+                    echo "Зміни в репозиторії:"
+                    changes.each { cs ->
+                        cs.forEach { c ->
+                            echo "  ${c.committer.displayName}: ${c.comment}"
+                        }
+                    }
+                } else {
+                    echo "Немає нових змін в репозиторії."
+                }
+            }
+        }
+    }
+}
+GPT  + сам ковиряв , але ADV IT - потрібно ще дивитися 
