@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Крок для виконання автоматизованих тестів
-                    sh 'your_test_command_here'
+                    sh 'your_test_command_here' (а тут ХЗ , чи самому потрібно написати скірпт чи як ? ) 
                 }
             }
         }
